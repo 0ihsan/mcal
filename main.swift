@@ -122,7 +122,7 @@ default:
 		}
 	}
 	if (calendar_not_found) {
-		print("no such calendar:", "spare")
+		print("no such calendar:", arguments[1])
 	}
 
 }
