@@ -37,6 +37,9 @@ case "continue", "c", "con":
 	print(time, "mins")
 case "next", "start", "n", "s":
 	print("starting next event: ", terminator:"")
+case "help","h","-h","--help":
+	print(USAGE)
+	exit(0)
 default:
 	break
 }
@@ -52,73 +55,102 @@ let predicate_events_until_next_midnight = store.predicateForEvents(
 	withStart: Date(), end: next_midnight, calendars: calendars)
 let events_since_midnight = store.events(matching: predicate_events_since_midnight)
 let events_until_next_midnight = store.events(matching: predicate_events_until_next_midnight)
-let current_event = events_since_midnight.last!
-let previous_event = events_since_midnight[events_since_midnight.count - 2]
-let next_event = events_until_next_midnight[0]
 
+var current_event: EKEvent?
+var previous_event: EKEvent?
+
+if events_since_midnight.count > 0 {
+	current_event = events_since_midnight.last
+}
+if events_since_midnight.count > 1 {
+	previous_event = events_since_midnight[events_since_midnight.count - 2]
+}
 
 switch cmd {
 
 case "end", "e":
-	current_event.endDate = Date()
-	try store.save(current_event, span: .thisEvent, commit: true)
-	print(current_event.title!)
+	if current_event != nil {
+		current_event!.endDate = Date()
+		try store.save(current_event!, span: .thisEvent, commit: true)
+		if current_event!.title != nil {
+			print(current_event!.title!)
+		}
+	} else {
+		print("no event found since", midnight)
+	}
 
 case "next", "start", "n", "s":
-	next_event.startDate = Date()
-	next_event.endDate = Date(timeIntervalSinceNow: time * 60)
-	try store.save(next_event, span: .thisEvent, commit: true)
-	print(next_event.title!)
+	if (events_until_next_midnight.count > 0) {
+		let next_event = events_until_next_midnight[0]
+		next_event.startDate = Date()
+		next_event.endDate = Date(timeIntervalSinceNow: time * 60)
+		try store.save(next_event, span: .thisEvent, commit: true)
+		print(next_event.title!)
+	} else {
+		print("no event found until", next_midnight)
+	}
 
 
 case "continue", "con", "c":
-	current_event.endDate = Date()
-	let prev_event_copied = EKEvent.init(eventStore: store)
-	prev_event_copied.calendar = previous_event.calendar
-	prev_event_copied.title = previous_event.title
-	prev_event_copied.startDate = Date()
-	prev_event_copied.endDate = Date(timeIntervalSinceNow: time * 60)
-	try store.save(current_event, span: .thisEvent, commit: true)
-	try store.save(prev_event_copied, span: .thisEvent, commit: true)
-	print(previous_event.title!)
+	if current_event != nil && previous_event != nil {
+		current_event!.endDate = Date()
+		let prev_event_copied = EKEvent.init(eventStore: store)
+		prev_event_copied.calendar = previous_event!.calendar
+		prev_event_copied.title = previous_event!.title
+		prev_event_copied.startDate = Date()
+		prev_event_copied.endDate = Date(timeIntervalSinceNow: time * 60)
+		try store.save(current_event!, span: .thisEvent, commit: true)
+		try store.save(prev_event_copied, span: .thisEvent, commit: true)
+		if previous_event!.title != nil {
+			print(previous_event!.title!)
+		}
+	}
 
 default:
 	// end current event
-	current_event.endDate = Date()
-	try store.save(current_event, span: .thisEvent, commit: true)
-	
+	if current_event != nil {
+		current_event!.endDate = Date()
+		try store.save(current_event!, span: .thisEvent, commit: true)
+	}
 	// add new event
 	var calendar_not_found = true
 	for cal in calendars {
-		if (cal.title.lowercased().contains(arguments[1])) {
-			calendar_not_found = false
-			let new_event = EKEvent.init(eventStore: store)
-			new_event.calendar = cal
+		if arguments.count < 1 {
+			print(USAGE)
+			exit(1)
+		} else {
 
-			var cal_time_and_title = arguments
-			if (arguments.contains("at")) {
-				let args_splitted = arguments.split(separator: "at")
-				cal_time_and_title = Array(args_splitted[0])
-				let after_at = args_splitted[1]
-				if (after_at.count > 0) {
-					new_event.location = after_at.joined(separator: " ")
+			if (cal.title.lowercased().contains(arguments[1])) {
+				calendar_not_found = false
+				let new_event = EKEvent.init(eventStore: store)
+				new_event.calendar = cal
+
+				var cal_time_and_title = arguments
+				if (arguments.contains("at")) {
+					let args_splitted = arguments.split(separator: "at")
+					cal_time_and_title = Array(args_splitted[0])
+					let after_at = Array(args_splitted[1])
+					if (after_at.count > 0) {
+						new_event.location = after_at.joined(separator: " ")
+					}
 				}
-			}
-			
-			if cal_time_and_title.count > 3 {
-				new_event.title = cal_time_and_title.dropFirst(3).joined(separator: " ")
-			} else if (cal_time_and_title.count == 3) {
-				new_event.title = cal_time_and_title.dropFirst(2).joined(separator: " ")
-			} else {
-				print(USAGE)
-				exit(1)
+				
+				if cal_time_and_title.count > 3 {
+					new_event.title = cal_time_and_title.dropFirst(3).joined(separator: " ")
+				} else if (cal_time_and_title.count == 3) {
+					new_event.title = cal_time_and_title.dropFirst(2).joined(separator: " ")
+				} else {
+					print(USAGE)
+					exit(1)
+				}
+
+				new_event.startDate = Date()
+				new_event.endDate = Date(timeIntervalSinceNow: time * 60)
+				try store.save(new_event, span: .thisEvent, commit: true)
+				print("ends at: ", Date.init(timeIntervalSinceNow: time * 60))
+				break
 			}
 
-			new_event.startDate = Date()
-			new_event.endDate = Date(timeIntervalSinceNow: time * 60)
-			try store.save(new_event, span: .thisEvent, commit: true)
-			print("ends at: ", Date.init(timeIntervalSinceNow: time * 60))
-			break
 		}
 	}
 	if (calendar_not_found) {
