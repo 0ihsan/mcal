@@ -13,13 +13,13 @@ let USAGE = """
 	mcal <end | e>
 	mcal <continue | con | c>
 	mcal <next | start | n | s>
-	mcal <calendar_name> <time> <event title> [ at <location> ]
+	mcal <calendar_name> <time_mins> <event title> [ at <location> ]
 
 \u{001B}[33mEXAMPLES\u{001B}[0m
 	mcal personal 30 eat & surf web
 	mcal business 60 develop calendar cli
 	mcal spare 15 break
-	mcal business 180 improve mcal at https://github.com/ihsanturk/mcal
+	mcal business 120 improve mcal at https://github.com/ihsanturk/mcal
 	mcal spare 30 play chess at https://lichess.com
 """
 
