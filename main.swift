@@ -34,14 +34,13 @@ case "end", "e":
 case "continue", "c", "con":
 	print("continuing ", terminator:"")
 	if arguments.count > 2 {time = Double(arguments[2])!}
-	print(time, "mins")
 case "next", "start", "n", "s":
 	print("starting next event: ", terminator:"")
 case "help","h","-h","--help":
 	print(USAGE)
 	exit(0)
 default:
-	break
+	if arguments.count > 2 {time = Double(arguments[2])!}
 }
 
 var store = EKEventStore()
