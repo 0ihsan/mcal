@@ -10,16 +10,17 @@ import EventKit
 
 let USAGE = """
 \u{001B}[33mUSAGE\u{001B}[0m
-	mcal <calendar_name> <time> <event title> at <location>
-	mcal end
-	mcal continue
+	mcal <end | e>
+	mcal <continue | con | c>
+	mcal <next | start | n | s>
+	mcal <calendar_name> <time> <event title> [ at <location> ]
 
 \u{001B}[33mEXAMPLES\u{001B}[0m
 	mcal personal 30 eat & surf web
 	mcal business 60 develop calendar cli
 	mcal spare 15 break
-	mcal business 180 fix price update
-	mcal spare 30 play chess at lichess.com
+	mcal business 180 improve mcal at https://github.com/ihsanturk/mcal
+	mcal spare 30 play chess at https://lichess.com
 """
 
 var time: Double = 60   // mins
@@ -124,16 +125,4 @@ default:
 		print("no such calendar:", "spare")
 	}
 
-
 }
-
-// create dates
-//formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
-
-//let sources = store.sources
-//for source in sources {
-//	print(source.title)
-//	for calendar in source.calendars(for: .event) {
-//		print(calendar.title)
-//	}
-//}
