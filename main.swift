@@ -95,6 +95,9 @@ case "next", "start", "n", "s":
 		current_event!.endDate = Date()
 		try store.save(current_event!, span: .thisEvent, commit: true)
 		next_event_index += 1
+	} else if (last_event != nil) {
+		last_event!.endDate = Date()
+		try store.save(last_event!, span: .thisEvent, commit: true)
 	}
 	if (events_until_next_midnight.count > 0) {
 		let next_event = events_until_next_midnight[next_event_index]
