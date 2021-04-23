@@ -48,10 +48,13 @@ let calendars = store.calendars(for: .event)
 let midnight = Calendar.current.startOfDay(for: Date())
 let next_midnight = Calendar.current.date(
 	byAdding: .day, value: 1, to: midnight)!
+let predicate_event_current = store.predicateForEvents(
+	withStart: Date(), end: Date(), calendars: calendars)
 let predicate_events_since_midnight = store.predicateForEvents(
 	withStart: midnight, end: Date(), calendars: calendars)
 let predicate_events_until_next_midnight = store.predicateForEvents(
 	withStart: Date(), end: next_midnight, calendars: calendars)
+let events_current = store.events(matching: predicate_event_current)
 let events_since_midnight = store.events(matching: predicate_events_since_midnight)
 let events_until_next_midnight = store.events(matching:
 	predicate_events_until_next_midnight)
@@ -60,10 +63,14 @@ let events_until_next_midnight = store.events(matching:
 	}
 
 var current_event: EKEvent?
+var last_event: EKEvent?
 var previous_event: EKEvent?
 
+if events_current.count > 0 {
+	current_event = events_current.last
+}
 if events_since_midnight.count > 0 {
-	current_event = events_since_midnight.last
+	last_event = events_since_midnight.last
 }
 if events_since_midnight.count > 1 {
 	previous_event = events_since_midnight[events_since_midnight.count - 2]
@@ -72,19 +79,25 @@ if events_since_midnight.count > 1 {
 switch cmd {
 
 case "end", "e":
-	if current_event != nil {
-		current_event!.endDate = Date()
-		try store.save(current_event!, span: .thisEvent, commit: true)
-		if current_event!.title != nil {
-			print(current_event!.title!)
+	if last_event != nil {
+		last_event!.endDate = Date()
+		try store.save(last_event!, span: .thisEvent, commit: true)
+		if last_event!.title != nil {
+			print(last_event!.title!)
 		}
 	} else {
 		print("no event found since", midnight)
 	}
 
 case "next", "start", "n", "s":
+	var next_event_index = 0
+	if current_event != nil {
+		current_event!.endDate = Date()
+		try store.save(current_event!, span: .thisEvent, commit: true)
+		next_event_index += 1
+	}
 	if (events_until_next_midnight.count > 0) {
-		let next_event = events_until_next_midnight[0]
+		let next_event = events_until_next_midnight[next_event_index]
 		next_event.startDate = Date()
 		next_event.endDate = Date(timeIntervalSinceNow: time * 60)
 		try store.save(next_event, span: .thisEvent, commit: true)
@@ -95,14 +108,14 @@ case "next", "start", "n", "s":
 
 
 case "continue", "con", "c":
-	if current_event != nil && previous_event != nil {
-		current_event!.endDate = Date()
+	if last_event != nil && previous_event != nil {
+		last_event!.endDate = Date()
 		let prev_event_copied = EKEvent.init(eventStore: store)
 		prev_event_copied.calendar = previous_event!.calendar
 		prev_event_copied.title = previous_event!.title
 		prev_event_copied.startDate = Date()
 		prev_event_copied.endDate = Date(timeIntervalSinceNow: time * 60)
-		try store.save(current_event!, span: .thisEvent, commit: true)
+		try store.save(last_event!, span: .thisEvent, commit: true)
 		try store.save(prev_event_copied, span: .thisEvent, commit: true)
 		if previous_event!.title != nil {
 			print(previous_event!.title!)
@@ -111,9 +124,9 @@ case "continue", "con", "c":
 
 default:
 	// end current event
-	if current_event != nil {
-		current_event!.endDate = Date()
-		try store.save(current_event!, span: .thisEvent, commit: true)
+	if last_event != nil {
+		last_event!.endDate = Date()
+		try store.save(last_event!, span: .thisEvent, commit: true)
 	}
 	// add new event
 	var calendar_not_found = true
