@@ -54,13 +54,14 @@ let predicate_events_since_midnight = store.predicateForEvents(
 	withStart: midnight, end: Date(), calendars: calendars)
 let predicate_events_until_next_midnight = store.predicateForEvents(
 	withStart: Date(), end: next_midnight, calendars: calendars)
+
 let events_current = store.events(matching: predicate_event_current)
+	.filter { event in return !event.isAllDay }
 let events_since_midnight = store.events(matching: predicate_events_since_midnight)
+	.filter { event in return !event.isAllDay }
 let events_until_next_midnight = store.events(matching:
 	predicate_events_until_next_midnight)
-	.filter {
-		 event in return !event.isAllDay
-	}
+	.filter { event in return !event.isAllDay }
 
 var current_event: EKEvent?
 var last_event: EKEvent?
