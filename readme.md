@@ -17,10 +17,13 @@ swiftc main.swift -o /usr/local/bin/mcal
 * [X] Bring future (next) event to current time (`mcal next`)
 * [X] Continue previous event (`mcal continue`) (ends the currnet and
       copies previous event to current time)
+* [X] Push last forgotten event as started from the last event and ends now.
+      (`mcal push ...`)
 
 ## usage
 ```
 mcal <end | e>
+mcal <push | p> [ <calendar_name> <event title> [ at <location> ] ]
 mcal <continue | con | c>
 mcal <next | start | n | s>
 mcal <calendar_name> <time_mins> <event title> [ at <location> ]
@@ -31,6 +34,7 @@ mcal <calendar_name> <time_mins> <event title> [ at <location> ]
 mcal personal 30 eat & surf web
 mcal business 60 develop calendar cli
 mcal spare 15 break
+mcal push personal spend time with family at london, home
 mcal business 120 improve mcal at https://github.com/ihsanturk/mcal
 mcal spare 30 play chess at https://lichess.com
 ```

@@ -11,6 +11,7 @@ import EventKit
 let USAGE = """
 \u{001B}[33mUSAGE\u{001B}[0m
 	mcal <end | e>
+	mcal <push | p> [ <event title> [ at <location> ] ]
 	mcal <continue | con | c>
 	mcal <next | start | n | s>
 	mcal <calendar_name> <time_mins> <event title> [ at <location> ]
@@ -19,6 +20,7 @@ let USAGE = """
 	mcal personal 30 eat & surf web
 	mcal business 60 develop calendar cli
 	mcal spare 15 break
+	mcal push personal spend time with family at london, home
 	mcal business 120 improve mcal at https://github.com/ihsanturk/mcal
 	mcal spare 30 play chess at https://lichess.com
 """
@@ -29,18 +31,23 @@ let arguments = CommandLine.arguments
 var cmd = ""
 if arguments.count > 1 { cmd = arguments[1] }
 switch cmd {
+case "push", "p":
+	print("pushed: ", terminator:"")
 case "end", "e":
-	print("ending ", terminator:"")
+	print("ended: ", terminator:"")
 case "continue", "c", "con":
-	print("continuing ", terminator:"")
+	print("continuing: ", terminator:"")
 	if arguments.count > 2 {time = Double(arguments[2])!}
 case "next", "start", "n", "s":
-	print("starting next event: ", terminator:"")
+	print("started next event: ", terminator:"")
 case "help","h","-h","--help":
 	print(USAGE)
 	exit(0)
 default:
 	if arguments.count > 2 {time = Double(arguments[2])!}
+/* Fatal error: Unexpectedly found nil while unwrapping an Optional value: file mcal/mai
+n.swift, line 43
+Illegal instruction: 4 */
 }
 
 var store = EKEventStore()
@@ -126,12 +133,80 @@ case "continue", "con", "c":
 		}
 	}
 
+case "push", "p":
+	if last_event == nil {
+	 print("don't know where to push, no last event :/")
+	 exit(1)
+	}
+	if current_event != nil {
+		current_event!.endDate = Date()
+		current_event!.startDate = previous_event!.endDate
+		try store.save(current_event!, span: .thisEvent, commit: true)
+		print(current_event!.title!)
+
+	} else { // no event at the moment
+		// add new event
+		var calendar_not_found = true
+		for cal in calendars {
+			if arguments.count < 2 {
+				print(USAGE)
+				exit(1)
+			} else {
+
+				if (cal.title.lowercased().contains(arguments[2])) {
+					calendar_not_found = false
+					let new_event = EKEvent.init(eventStore: store)
+					new_event.calendar = cal
+
+					var cal_time_and_title = arguments
+					if (arguments.contains("at")) {
+						let args_splitted = arguments.split(separator: "at")
+						cal_time_and_title = Array(args_splitted[0])
+						let after_at = Array(args_splitted[1])
+						if (after_at.count > 0) {
+							new_event.location = after_at.joined(separator: " ")
+						}
+					}
+
+					if cal_time_and_title.count > 3 {
+						new_event.title = cal_time_and_title.dropFirst(3).joined(separator: " ")
+					} else if (cal_time_and_title.count == 3) {
+						new_event.title = cal_time_and_title.dropFirst(2).joined(separator: " ")
+					} else {
+						print(USAGE)
+						exit(1)
+					}
+
+					let dateComponentsFormatter = DateComponentsFormatter()
+					dateComponentsFormatter.allowedUnits = [.second, .minute, .hour]
+					dateComponentsFormatter.maximumUnitCount = 1
+					dateComponentsFormatter.unitsStyle = .full
+					
+
+					new_event.startDate = last_event!.endDate
+					new_event.endDate = Date()
+					try store.save(new_event, span: .thisEvent, commit: true)
+					print(new_event.title!, terminator:" ")
+					print("for", dateComponentsFormatter.string(
+						from: new_event.startDate, to: new_event.endDate)!)
+					break
+				}
+
+			}
+		}
+		if (calendar_not_found) {
+			print("no such calendar:", arguments[1])
+		}
+	}
+
 default:
+
 	// end current event
 	if last_event != nil {
 		last_event!.endDate = Date()
 		try store.save(last_event!, span: .thisEvent, commit: true)
 	}
+
 	// add new event
 	var calendar_not_found = true
 	for cal in calendars {
@@ -177,4 +252,46 @@ default:
 		print("no such calendar:", arguments[1])
 	}
 
+}
+
+extension Date {
+    /// Returns the amount of years from another date
+    func years(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.year], from: date, to: self).year ?? 0
+    }
+    /// Returns the amount of months from another date
+    func months(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.month], from: date, to: self).month ?? 0
+    }
+    /// Returns the amount of weeks from another date
+    func weeks(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.weekOfMonth], from: date, to: self).weekOfMonth ?? 0
+    }
+    /// Returns the amount of days from another date
+    func days(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.day], from: date, to: self).day ?? 0
+    }
+    /// Returns the amount of hours from another date
+    func hours(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.hour], from: date, to: self).hour ?? 0
+    }
+    /// Returns the amount of minutes from another date
+    func minutes(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.minute], from: date, to: self).minute ?? 0
+    }
+    /// Returns the amount of seconds from another date
+    func seconds(from date: Date) -> Int {
+        return Calendar.current.dateComponents([.second], from: date, to: self).second ?? 0
+    }
+    /// Returns the a custom time interval description from another date
+    func offset(from date: Date) -> String {
+        if years(from: date)   > 0 { return "\(years(from: date))y"   }
+        if months(from: date)  > 0 { return "\(months(from: date))M"  }
+        if weeks(from: date)   > 0 { return "\(weeks(from: date))w"   }
+        if days(from: date)    > 0 { return "\(days(from: date))d"    }
+        if hours(from: date)   > 0 { return "\(hours(from: date))h"   }
+        if minutes(from: date) > 0 { return "\(minutes(from: date))m" }
+        if seconds(from: date) > 0 { return "\(seconds(from: date))s" }
+        return ""
+    }
 }
