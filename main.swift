@@ -11,7 +11,7 @@ import EventKit
 let USAGE = """
 \u{001B}[33mUSAGE\u{001B}[0m
 	mcal <end | e>
-	mcal <push | p> [ <event title> [ at <location> ] ]
+	mcal <push | p> [ <calendar_name> <event title> [ at <location> ] ]
 	mcal <continue | con | c>
 	mcal <next | start | n | s>
 	mcal <calendar_name> <time_mins> <event title> [ at <location> ]
