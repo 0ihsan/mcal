@@ -1,11 +1,11 @@
 # mcal
 
-Less than 200 line of suckless code for managing the macOS built-in calendar
+Less than 300 lines of suckless code for managing the macOS built-in calendar
 app from command line. So you don't have to align the events with your fucking
 pointer pixel by pixel (I hate it).
 
 ## install
-Takes couple of seconds to compile...
+Takes couple of seconds to compile.
 ```
 swiftc main.swift -o /usr/local/bin/mcal
 ```

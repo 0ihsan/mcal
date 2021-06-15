@@ -32,14 +32,14 @@ var cmd = ""
 if arguments.count > 1 { cmd = arguments[1] }
 switch cmd {
 case "push", "p":
-	print("pushed: ", terminator:"")
+	print("pushed: \u{001B}[32m", terminator:"")
 case "end", "e":
-	print("ended: ", terminator:"")
+	print("ended: \u{001B}[32m", terminator:"")
 case "continue", "c", "con":
-	print("continuing: ", terminator:"")
+	print("continuing: \u{001B}[32m", terminator:"")
 	if arguments.count > 2 {time = Double(arguments[2])!}
 case "next", "start", "n", "s":
-	print("started next event: ", terminator:"")
+	print("started next event: \u{001B}[32m", terminator:"")
 case "help","h","-h","--help":
 	print(USAGE)
 	exit(0)
