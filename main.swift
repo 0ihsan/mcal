@@ -195,7 +195,7 @@ case "push", "p":
 			}
 		}
 		if (calendar_not_found) {
-			print("no such calendar:", arguments[1])
+			print("\u{001B}[31mno such calendar:", arguments[1])
 		}
 	}
 
