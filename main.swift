@@ -45,12 +45,40 @@ case "help","h","-h","--help":
 	exit(0)
 default:
 	if arguments.count > 2 {time = Double(arguments[2])!}
-/* Fatal error: Unexpectedly found nil while unwrapping an Optional value: file mcal/mai
-n.swift, line 43
-Illegal instruction: 4 */
+
+/* Fatal error: Unexpectedly found nil while unwrapping an Optional value: file
+ * mcal/main.swift, line 43
+ * Illegal instruction: 4
+ */
+
 }
 
 var store = EKEventStore()
+
+switch EKEventStore.authorizationStatus(for: .event) {
+
+    case .notDetermined:
+        store.requestAccess(to: .event, completion:
+            {(granted: Bool, error: Error?) -> Void in
+                if granted {
+                    print("Access granted")
+                } else {
+                    print("Access denied")
+                }
+        })
+
+    case .denied:
+        print("access denied to calendars, try:\n\n",
+              "  Preferences > Privacy > Calendars > [Your Terminal] > Check")
+        exit(1)
+
+    case .authorized:
+        break
+
+    default:
+        print("what happened there?")
+}
+
 let calendars = store.calendars(for: .event)
 let midnight = Calendar.current.startOfDay(for: Date())
 let next_midnight = Calendar.current.date(
