@@ -44,10 +44,12 @@ case "help","h","-h","--help":
 	print(USAGE)
 	exit(0)
 default:
-	print(USAGE)
-	exit(1)
-/*
-	if arguments.count > 2 {time = Double(arguments[2])!} */
+	if arguments.count > 2 {
+		time = Double(arguments[2])!
+	} else {
+		print(USAGE)
+		exit(1)
+	}
 
 /* Fatal error: Unexpectedly found nil while unwrapping an Optional value: file
  * mcal/main.swift, line 43
