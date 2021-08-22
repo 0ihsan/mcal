@@ -20,18 +20,19 @@ brew install mcal
 * [X] Create new events on existing calendars. (`mcal personal 30 spend time with family`)
 * [X] Add location data (`mcal personal 15 drink coffee at everest`)
 * [X] Bring future (next) event to current time (`mcal next`)
-* [X] Continue previous event (`mcal continue`) (ends the currnet and
+* [X] Continue previous event (`mcal continue`) (ends the current and
       copies previous event to current time)
 * [X] Push last forgotten event as started from the last event and ends now.
       (`mcal push ...`)
 
 ## usage
 ```
-mcal <end | e>
-mcal <push | p> [ <calendar_name> <event title> [ at <location> ] ]
-mcal <continue | con | c>
-mcal <next | start | n | s>
-mcal <calendar_name> <time_mins> <event title> [ at <location> ]
+mcal <calendar_name> <duration_mins> <event_title> [ at <location> ]
+
+mcal end
+mcal push [ <calendar_name> <event title> [ at <location> ] ]
+mcal continue
+mcal next
 ```
 
 ## examples
