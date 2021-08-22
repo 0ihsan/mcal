@@ -10,22 +10,35 @@ import EventKit
 
 let USAGE = """
 \u{001B}[33mUSAGE\u{001B}[0m
-	mcal <end | e>
-	mcal <push | p> [ <calendar_name> <event title> [ at <location> ] ]
-	mcal <continue | con | c>
-	mcal <next | start | n | s>
-	mcal <calendar_name> <time_mins> <event title> [ at <location> ]
+
+   \u{001B}[32mmcal\u{001B}[0m <calendar_name> <duration_mins> <event_title> [ at <location> ]
+
+   \u{001B}[32mmcal \u{001B}[34mend\u{001B}[0m
+   \u{001B}[32mmcal \u{001B}[34mpush\u{001B}[0m [ <calendar_name> <event title> [ at <location> ] ]
+   \u{001B}[32mmcal \u{001B}[34mcontinue\u{001B}[0m
+   \u{001B}[32mmcal \u{001B}[34mnext\u{001B}[0m
+
+\u{001B}[33mALIAS\u{001B}[0m
+
+   e     -> end
+   p     -> push
+   c     -> continue
+   con   -> continue
+   start -> next
+   s     -> next
+   n     -> next
 
 \u{001B}[33mEXAMPLES\u{001B}[0m
-	mcal personal 30 eat & surf web
-	mcal business 60 develop calendar cli
-	mcal spare 15 break
-	mcal push personal spend time with family at london, home
-	mcal business 120 improve mcal at https://github.com/ihsanturk/mcal
-	mcal spare 30 play chess at https://lichess.com
+
+   mcal personal 30 eat & surf web
+   mcal business 60 develop calendar cli
+   mcal spare 15 break
+   mcal push personal spend time with family at london, home
+   mcal business 120 improve mcal at https://github.com/ihsanturk/mcal
+   mcal spare 30 play chess at https://lichess.com
 """
 
-var time: Double = 60   // mins
+var duration: Double = 60   // mins
 
 let arguments = CommandLine.arguments
 var cmd = ""
@@ -37,7 +50,7 @@ case "end", "e":
 	print("ended: \u{001B}[32m", terminator:"")
 case "continue", "c", "con":
 	print("continuing: \u{001B}[32m", terminator:"")
-	if arguments.count > 2 {time = Double(arguments[2])!}
+	if arguments.count > 2 {duration = Double(arguments[2])!}
 case "next", "start", "n", "s":
 	print("started next event: \u{001B}[32m", terminator:"")
 case "help","h","-h","--help":
@@ -45,17 +58,11 @@ case "help","h","-h","--help":
 	exit(0)
 default:
 	if arguments.count > 2 {
-		time = Double(arguments[2])!
+		duration = Double(arguments[2])!
 	} else {
 		print(USAGE)
 		exit(1)
 	}
-
-/* Fatal error: Unexpectedly found nil while unwrapping an Optional value: file
- * mcal/main.swift, line 43
- * Illegal instruction: 4
- */
-
 }
 
 var store = EKEventStore()
@@ -74,7 +81,7 @@ switch EKEventStore.authorizationStatus(for: .event) {
 
     case .denied:
         print("access denied to calendars, try:\n\n",
-              "  Preferences > Privacy > Calendars > [Your Terminal] > Check")
+              "   Preferences > Privacy > Calendars > [Your Terminal] > Check")
         exit(1)
 
     case .authorized:
@@ -143,7 +150,7 @@ case "next", "start", "n", "s":
 	if (events_until_next_midnight.count > 0) {
 		let next_event = events_until_next_midnight[next_event_index]
 		next_event.startDate = Date()
-		next_event.endDate = Date(timeIntervalSinceNow: time * 60)
+		next_event.endDate = Date(timeIntervalSinceNow: duration * 60)
 		try store.save(next_event, span: .thisEvent, commit: true)
 		print(next_event.title!)
 	} else {
@@ -158,7 +165,7 @@ case "continue", "con", "c":
 		prev_event_copied.calendar = previous_event!.calendar
 		prev_event_copied.title = previous_event!.title
 		prev_event_copied.startDate = Date()
-		prev_event_copied.endDate = Date(timeIntervalSinceNow: time * 60)
+		prev_event_copied.endDate = Date(timeIntervalSinceNow: duration * 60)
 		try store.save(last_event!, span: .thisEvent, commit: true)
 		try store.save(prev_event_copied, span: .thisEvent, commit: true)
 		if previous_event!.title != nil {
@@ -191,20 +198,20 @@ case "push", "p":
 					let new_event = EKEvent.init(eventStore: store)
 					new_event.calendar = cal
 
-					var cal_time_and_title = arguments
+					var cal_duration_and_title = arguments
 					if (arguments.contains("at")) {
 						let args_splitted = arguments.split(separator: "at")
-						cal_time_and_title = Array(args_splitted[0])
+						cal_duration_and_title = Array(args_splitted[0])
 						let after_at = Array(args_splitted[1])
 						if (after_at.count > 0) {
 							new_event.location = after_at.joined(separator: " ")
 						}
 					}
 
-					if cal_time_and_title.count > 3 {
-						new_event.title = cal_time_and_title.dropFirst(3).joined(separator: " ")
-					} else if (cal_time_and_title.count == 3) {
-						new_event.title = cal_time_and_title.dropFirst(2).joined(separator: " ")
+					if cal_duration_and_title.count > 3 {
+						new_event.title = cal_duration_and_title.dropFirst(3).joined(separator: " ")
+					} else if (cal_duration_and_title.count == 3) {
+						new_event.title = cal_duration_and_title.dropFirst(2).joined(separator: " ")
 					} else {
 						print(USAGE)
 						exit(1)
@@ -253,29 +260,29 @@ default:
 				let new_event = EKEvent.init(eventStore: store)
 				new_event.calendar = cal
 
-				var cal_time_and_title = arguments
+				var cal_duration_and_title = arguments
 				if (arguments.contains("at")) {
 					let args_splitted = arguments.split(separator: "at")
-					cal_time_and_title = Array(args_splitted[0])
+					cal_duration_and_title = Array(args_splitted[0])
 					let after_at = Array(args_splitted[1])
 					if (after_at.count > 0) {
 						new_event.location = after_at.joined(separator: " ")
 					}
 				}
 				
-				if cal_time_and_title.count > 3 {
-					new_event.title = cal_time_and_title.dropFirst(3).joined(separator: " ")
-				} else if (cal_time_and_title.count == 3) {
-					new_event.title = cal_time_and_title.dropFirst(2).joined(separator: " ")
+				if cal_duration_and_title.count > 3 {
+					new_event.title = cal_duration_and_title.dropFirst(3).joined(separator: " ")
+				} else if (cal_duration_and_title.count == 3) {
+					new_event.title = cal_duration_and_title.dropFirst(2).joined(separator: " ")
 				} else {
 					print(USAGE)
 					exit(1)
 				}
 
 				new_event.startDate = Date()
-				new_event.endDate = Date(timeIntervalSinceNow: time * 60)
+				new_event.endDate = Date(timeIntervalSinceNow: duration * 60)
 				try store.save(new_event, span: .thisEvent, commit: true)
-				print("ends at: ", Date.init(timeIntervalSinceNow: time * 60))
+				print("ends at: ", Date.init(timeIntervalSinceNow: duration * 60))
 				break
 			}
 
