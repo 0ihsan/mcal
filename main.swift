@@ -9,7 +9,11 @@ import Foundation
 import EventKit
 
 let USAGE = """
-\u{001B}[33mUSAGE\u{001B}[0m
+\u{001B}[32mmcal\u{001B}[0m 1.0.0
+ihsan ihsanl@pm[dot]me
+Manage macOS Calendar from command line.
+
+\u{001B}[33mUSAGE:\u{001B}[0m
 
    \u{001B}[32mmcal\u{001B}[0m <calendar_name> <duration_mins> <event_title> [ at <location> ]
 
@@ -18,7 +22,7 @@ let USAGE = """
    \u{001B}[32mmcal \u{001B}[34mcontinue\u{001B}[0m
    \u{001B}[32mmcal \u{001B}[34mnext\u{001B}[0m
 
-\u{001B}[33mALIAS\u{001B}[0m
+\u{001B}[33mALIAS:\u{001B}[0m
 
    e     -> end
    p     -> push
@@ -28,7 +32,7 @@ let USAGE = """
    s     -> next
    n     -> next
 
-\u{001B}[33mEXAMPLES\u{001B}[0m
+\u{001B}[33mEXAMPLES:\u{001B}[0m
 
    mcal personal 30 eat & surf web
    mcal business 60 develop calendar cli
