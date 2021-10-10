@@ -54,14 +54,14 @@ switch cmd {
 case "now", "current", "what":
 	break
 case "push", "p":
-	print("pushed: \u{001B}[32m", terminator:"")
+	print("pushed \u{001B}[32m", terminator:"")
 case "end", "e":
-	print("ended: \u{001B}[32m", terminator:"")
+	print("ended \u{001B}[32m", terminator:"")
 case "continue", "c", "con":
-	print("continuing: \u{001B}[32m", terminator:"")
+	print("continuing \u{001B}[32m", terminator:"")
 	if arguments.count > 2 {duration = Double(arguments[2])!}
 case "next", "start", "n", "s":
-	print("started next event: \u{001B}[32m", terminator:"")
+	print("started next event \u{001B}[32m", terminator:"")
 case "help","h","-h","--help":
 	print(USAGE)
 	exit(0)
@@ -99,6 +99,12 @@ switch EKEventStore.authorizationStatus(for: .event) {
 	default:
 		print("what happened there?")
 }
+
+
+let dateComponentsFormatter = DateComponentsFormatter()
+dateComponentsFormatter.allowedUnits = [.second, .minute, .hour]
+dateComponentsFormatter.maximumUnitCount = 1
+dateComponentsFormatter.unitsStyle = .full
 
 let calendars = store.calendars(for: .event)
 let midnight = Calendar.current.startOfDay(for: Date())
@@ -170,10 +176,6 @@ case "now", "current", "what":
 	setbuf(stdout, nil);
 	if current_event != nil  {
 
-		let dateComponentsFormatter = DateComponentsFormatter()
-		dateComponentsFormatter.allowedUnits = [.second, .minute, .hour]
-		dateComponentsFormatter.maximumUnitCount = 1
-		dateComponentsFormatter.unitsStyle = .full
 		let time_passed = dateComponentsFormatter.string(from: current_event!.startDate, to: current_event!.endDate)!
 
 		fputs("\n  \u{001B}[33m",stderr)
@@ -210,7 +212,11 @@ case "now", "current", "what":
 	} else {
 		fputs("\u{001B}[31mno current event\u{001B}[0m\n", stderr)
 		if last_event?.title != nil {
-			fputs("you did \u{001B}[35m\(last_event!.title!)\u{001B}[0m", stderr)
+			let time_passed = dateComponentsFormatter.string(
+			    from: last_event!.endDate,
+			    to: Date())!
+			fputs("you did \u{001B}[1;35m\(last_event!.title!)\u{001B}[0m ", stderr)
+			fputs("\u{001B}[33m\(time_passed)\u{001B}[0m ago\n", stderr)
 		}
 	}
 
@@ -272,12 +278,6 @@ case "push", "p":
 						print(USAGE)
 						exit(1)
 					}
-
-					let dateComponentsFormatter = DateComponentsFormatter()
-					dateComponentsFormatter.allowedUnits = [.second, .minute, .hour]
-					dateComponentsFormatter.maximumUnitCount = 1
-					dateComponentsFormatter.unitsStyle = .full
-					
 
 					new_event.startDate = last_event!.endDate
 					new_event.endDate = Date()
