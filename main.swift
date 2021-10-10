@@ -52,7 +52,7 @@ var cmd = ""
 if arguments.count > 1 { cmd = arguments[1] }
 switch cmd {
 case "now", "current", "what":
-	 break
+	break
 case "push", "p":
 	print("pushed: \u{001B}[32m", terminator:"")
 case "end", "e":
@@ -78,26 +78,26 @@ var store = EKEventStore()
 
 switch EKEventStore.authorizationStatus(for: .event) {
 
-    case .notDetermined:
-        store.requestAccess(to: .event, completion:
-            {(granted: Bool, error: Error?) -> Void in
-                if granted {
-                    print("Access granted")
-                } else {
-                    print("Access denied")
-                }
-        })
+	case .notDetermined:
+		store.requestAccess(to: .event, completion:
+			{(granted: Bool, error: Error?) -> Void in
+				if granted {
+					print("Access granted")
+				} else {
+					print("Access denied")
+				}
+		})
 
-    case .denied:
-        print("access denied to calendars, try:\n\n",
-              "   Preferences > Privacy > Calendars > [Your Terminal] > Check")
-        exit(1)
+	case .denied:
+		print("access denied to calendars, try:\n\n",
+			"   Preferences > Privacy > Calendars > [Your Terminal] > Check")
+		exit(1)
 
-    case .authorized:
-        break
+	case .authorized:
+		break
 
-    default:
-        print("what happened there?")
+	default:
+		print("what happened there?")
 }
 
 let calendars = store.calendars(for: .event)
@@ -167,22 +167,22 @@ case "next", "start", "n", "s":
 	}
 
 case "now", "current", "what":
-	if last_event != nil  {
+	setbuf(stdout, nil);
+	if current_event != nil  {
 
-		setbuf(stdout, nil);
 		let dateComponentsFormatter = DateComponentsFormatter()
 		dateComponentsFormatter.allowedUnits = [.second, .minute, .hour]
 		dateComponentsFormatter.maximumUnitCount = 1
 		dateComponentsFormatter.unitsStyle = .full
-		let time_passed = dateComponentsFormatter.string(from: last_event!.startDate, to: last_event!.endDate)!
+		let time_passed = dateComponentsFormatter.string(from: current_event!.startDate, to: current_event!.endDate)!
 
 		fputs("\n  \u{001B}[33m",stderr)
-		print(last_event?.title ?? "", terminator:"")
+		print(current_event?.title ?? "", terminator:"")
 		fputs("\u{001B}[0m\n",stderr)
 
 		putchar(9) // 9 is tab character
 		fputs("\ncalendar: \u{001B}[32m",stderr)
-		print(last_event?.calendar.title ?? "", terminator:"")
+		print(current_event?.calendar.title ?? "", terminator:"")
 		fputs("\u{001B}[0m",stderr)
 
 		putchar(9)
@@ -190,23 +190,28 @@ case "now", "current", "what":
 		print(time_passed, terminator:"")
 		fputs("\u{001B}[0m ago",stderr)
 
-		if last_event?.location != nil {
+		if current_event?.location != nil {
 			putchar(9)
 			fputs("\nlocation: \u{001B}[36m",stderr)
-			print(last_event!.location!, terminator:"")
+			print(current_event!.location!, terminator:"")
 			fputs("\u{001B}[0m",stderr)
 		}
 
-		if last_event?.notes != nil {
+		if current_event?.notes != nil {
 			putchar(9)
 			fputs("\n   notes:\n------",stderr)
 			putchar(10) // 10 is new line character
-			fputs(last_event!.notes!,stdout)
+			fputs(current_event!.notes!,stdout)
 			fputs("\n------",stderr)
 		}
 
 		putchar(10)
 
+	} else {
+		fputs("\u{001B}[31mno current event\u{001B}[0m\n", stderr)
+		if last_event?.title != nil {
+			fputs("you did \u{001B}[35m\(last_event!.title!)\u{001B}[0m", stderr)
+		}
 	}
 
 case "continue", "con", "c":
@@ -226,8 +231,8 @@ case "continue", "con", "c":
 
 case "push", "p":
 	if last_event == nil {
-	 print("don't know where to push, no last event :/")
-	 exit(1)
+		print("don't know where to push, no last event :/")
+		exit(1)
 	}
 	if current_event != nil {
 		current_event!.endDate = Date()
@@ -346,43 +351,43 @@ default:
 }
 
 extension Date {
-    /// Returns the amount of years from another date
-    func years(from date: Date) -> Int {
-        return Calendar.current.dateComponents([.year], from: date, to: self).year ?? 0
-    }
-    /// Returns the amount of months from another date
-    func months(from date: Date) -> Int {
-        return Calendar.current.dateComponents([.month], from: date, to: self).month ?? 0
-    }
-    /// Returns the amount of weeks from another date
-    func weeks(from date: Date) -> Int {
-        return Calendar.current.dateComponents([.weekOfMonth], from: date, to: self).weekOfMonth ?? 0
-    }
-    /// Returns the amount of days from another date
-    func days(from date: Date) -> Int {
-        return Calendar.current.dateComponents([.day], from: date, to: self).day ?? 0
-    }
-    /// Returns the amount of hours from another date
-    func hours(from date: Date) -> Int {
-        return Calendar.current.dateComponents([.hour], from: date, to: self).hour ?? 0
-    }
-    /// Returns the amount of minutes from another date
-    func minutes(from date: Date) -> Int {
-        return Calendar.current.dateComponents([.minute], from: date, to: self).minute ?? 0
-    }
-    /// Returns the amount of seconds from another date
-    func seconds(from date: Date) -> Int {
-        return Calendar.current.dateComponents([.second], from: date, to: self).second ?? 0
-    }
-    /// Returns the a custom time interval description from another date
-    func offset(from date: Date) -> String {
-        if years(from: date)   > 0 { return "\(years(from: date))y"   }
-        if months(from: date)  > 0 { return "\(months(from: date))M"  }
-        if weeks(from: date)   > 0 { return "\(weeks(from: date))w"   }
-        if days(from: date)    > 0 { return "\(days(from: date))d"    }
-        if hours(from: date)   > 0 { return "\(hours(from: date))h"   }
-        if minutes(from: date) > 0 { return "\(minutes(from: date))m" }
-        if seconds(from: date) > 0 { return "\(seconds(from: date))s" }
-        return ""
-    }
+	/// Returns the amount of years from another date
+	func years(from date: Date) -> Int {
+		return Calendar.current.dateComponents([.year], from: date, to: self).year ?? 0
+	}
+	/// Returns the amount of months from another date
+	func months(from date: Date) -> Int {
+		return Calendar.current.dateComponents([.month], from: date, to: self).month ?? 0
+	}
+	/// Returns the amount of weeks from another date
+	func weeks(from date: Date) -> Int {
+		return Calendar.current.dateComponents([.weekOfMonth], from: date, to: self).weekOfMonth ?? 0
+	}
+	/// Returns the amount of days from another date
+	func days(from date: Date) -> Int {
+		return Calendar.current.dateComponents([.day], from: date, to: self).day ?? 0
+	}
+	/// Returns the amount of hours from another date
+	func hours(from date: Date) -> Int {
+		return Calendar.current.dateComponents([.hour], from: date, to: self).hour ?? 0
+	}
+	/// Returns the amount of minutes from another date
+	func minutes(from date: Date) -> Int {
+		return Calendar.current.dateComponents([.minute], from: date, to: self).minute ?? 0
+	}
+	/// Returns the amount of seconds from another date
+	func seconds(from date: Date) -> Int {
+		return Calendar.current.dateComponents([.second], from: date, to: self).second ?? 0
+	}
+	/// Returns the a custom time interval description from another date
+	func offset(from date: Date) -> String {
+		if years(from: date)   > 0 { return "\(years(from: date))y"   }
+		if months(from: date)  > 0 { return "\(months(from: date))M"  }
+		if weeks(from: date)   > 0 { return "\(weeks(from: date))w"   }
+		if days(from: date)    > 0 { return "\(days(from: date))d"    }
+		if hours(from: date)   > 0 { return "\(hours(from: date))h"   }
+		if minutes(from: date) > 0 { return "\(minutes(from: date))m" }
+		if seconds(from: date) > 0 { return "\(seconds(from: date))s" }
+		return ""
+	}
 }
