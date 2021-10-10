@@ -45,23 +45,25 @@ Manage macOS Calendar from command line.
    mcal spare 30 play chess at https://lichess.com
 """
 
+setbuf(stdout, nil);
+
 var duration: Double = 60   // mins
 
 let arguments = CommandLine.arguments
 var cmd = ""
 if arguments.count > 1 { cmd = arguments[1] }
 switch cmd {
-case "now", "current", "what":
+case "now", "current", "what", "info":
 	break
 case "push", "p":
-	print("pushed \u{001B}[32m", terminator:"")
+	print("it took \u{001B}[35m", terminator:"")
 case "end", "e":
-	print("ended \u{001B}[32m", terminator:"")
+	print("it took \u{001B}[35m", terminator:"")
 case "continue", "c", "con":
-	print("continuing \u{001B}[32m", terminator:"")
+	print("continue to \u{001B}[1;33m", terminator:"")
 	if arguments.count > 2 {duration = Double(arguments[2])!}
 case "next", "start", "n", "s":
-	print("started next event \u{001B}[32m", terminator:"")
+	print("started to \u{001B}[1;33m", terminator:"")
 case "help","h","-h","--help":
 	print(USAGE)
 	exit(0)
@@ -82,9 +84,9 @@ switch EKEventStore.authorizationStatus(for: .event) {
 		store.requestAccess(to: .event, completion:
 			{(granted: Bool, error: Error?) -> Void in
 				if granted {
-					print("Access granted")
+					print("access granted")
 				} else {
-					print("Access denied")
+					print("access denied")
 				}
 		})
 
@@ -97,7 +99,7 @@ switch EKEventStore.authorizationStatus(for: .event) {
 		break
 
 	default:
-		print("what happened there?")
+		fputs("what happened there?", stderr)
 }
 
 
@@ -146,10 +148,15 @@ case "end", "e":
 		last_event!.endDate = Date()
 		try store.save(last_event!, span: .thisEvent, commit: true)
 		if last_event!.title != nil {
-			print(last_event!.title!)
+			let time_passed = dateComponentsFormatter.string(
+				from: last_event!.startDate,
+				to: last_event!.endDate)!
+			print(time_passed, "\u{001B}[0mto\u{001B}[1;33m", last_event!.title!)
 		}
 	} else {
-		print("no event found since", midnight)
+		fputs(
+			"\r\u{001B}[0;31mno event found since\u{001B}[35m midnight\u{001B}[0m\n",
+			stderr)
 	}
 
 case "next", "start", "n", "s":
@@ -167,23 +174,28 @@ case "next", "start", "n", "s":
 		next_event.startDate = Date()
 		next_event.endDate = Date(timeIntervalSinceNow: duration * 60)
 		try store.save(next_event, span: .thisEvent, commit: true)
-		print(next_event.title!)
+		fputs(next_event.title!, stdout)
+		if next_event.location != nil {
+			print("\u{001B}[0m at\u{001B}[34m", next_event.location!, "\u{001B}[0m")
+		}
+
 	} else {
-		print("no event found until", next_midnight)
+		fputs(
+			"\r\u{001B}[0;31mno event found until\u{001B}[35m next midnight\u{001B}[0m\n",
+			stderr)
 	}
 
-case "now", "current", "what":
-	setbuf(stdout, nil);
+case "now", "current", "what", "info":
 	if current_event != nil  {
 
-		let time_passed = dateComponentsFormatter.string(from: current_event!.startDate, to: current_event!.endDate)!
+		let time_passed = dateComponentsFormatter.string(from: current_event!.startDate, to: Date())!
 
 		fputs("\n  \u{001B}[1;33m",stderr)
 		print(current_event?.title ?? "", terminator:"")
 		fputs("\u{001B}[0m\n",stderr)
 
 		putchar(9) // 9 is tab character
-		fputs("\ncalendar: \u{001B}[32m",stderr)
+		fputs("\ncalendar: \u{001B}[36m",stderr)
 		print(current_event?.calendar.title ?? "", terminator:"")
 		fputs("\u{001B}[0m",stderr)
 
@@ -194,7 +206,7 @@ case "now", "current", "what":
 
 		if current_event?.location != nil {
 			putchar(9)
-			fputs("\nlocation: \u{001B}[36m",stderr)
+			fputs("\nlocation: \u{001B}[34m",stderr)
 			print(current_event!.location!, terminator:"")
 			fputs("\u{001B}[0m",stderr)
 		}
@@ -225,26 +237,38 @@ case "continue", "con", "c":
 		last_event!.endDate = Date()
 		let prev_event_copied = EKEvent.init(eventStore: store)
 		prev_event_copied.calendar = previous_event!.calendar
+		prev_event_copied.location = previous_event!.location
+		prev_event_copied.notes = previous_event!.notes
+		prev_event_copied.calendar = previous_event!.calendar
 		prev_event_copied.title = previous_event!.title
 		prev_event_copied.startDate = Date()
 		prev_event_copied.endDate = Date(timeIntervalSinceNow: duration * 60)
 		try store.save(last_event!, span: .thisEvent, commit: true)
 		try store.save(prev_event_copied, span: .thisEvent, commit: true)
 		if previous_event!.title != nil {
-			print(previous_event!.title!)
+			fputs(previous_event!.title!, stdout)
+			fputs("\u{001B}[0m", stdout)
+			if previous_event?.location != nil {
+				fputs(" at \u{001B}[34m\(previous_event!.location!)", stdout)
+			}
+			putchar(10)
 		}
 	}
 
 case "push", "p":
 	if last_event == nil {
-		print("don't know where to push, no last event :/")
+		fputs("\r\u{001B}[0;31mdon't know where to push, no last event :/\u{001B}[0m\n",
+			stderr)
 		exit(1)
 	}
 	if current_event != nil {
 		current_event!.endDate = Date()
 		current_event!.startDate = previous_event!.endDate
 		try store.save(current_event!, span: .thisEvent, commit: true)
-		print(current_event!.title!)
+		let time_passed = dateComponentsFormatter.string(
+			from: current_event!.startDate,
+			to: current_event!.endDate)!
+		print(time_passed, "\u{001B}[0mto\u{001B}[1;33m", current_event!.title!)
 
 	} else { // no event at the moment
 		// add new event
@@ -282,16 +306,16 @@ case "push", "p":
 					new_event.startDate = last_event!.endDate
 					new_event.endDate = Date()
 					try store.save(new_event, span: .thisEvent, commit: true)
-					print(new_event.title!, terminator:" ")
-					print("for", dateComponentsFormatter.string(
-						from: new_event.startDate, to: new_event.endDate)!)
+					print(dateComponentsFormatter.string(
+						from: new_event.startDate, to: new_event.endDate)!,
+						"\u{001B}[0mto\u{001B}[1;33m", new_event.title!)
 					break
 				}
 
 			}
 		}
 		if (calendar_not_found) {
-			print("\u{001B}[31mno such calendar:", arguments[1])
+			print("\r\u{001B}[0;31mno such calendar: \u{001B}[1;31m\(arguments[2])\u{001B}[0m")
 		}
 	}
 
@@ -338,16 +362,29 @@ default:
 				new_event.startDate = Date()
 				new_event.endDate = Date(timeIntervalSinceNow: duration * 60)
 				try store.save(new_event, span: .thisEvent, commit: true)
-				print("ends at: ", Date.init(timeIntervalSinceNow: duration * 60))
+				print(
+					"ends at\u{001B}[1;35m",
+					Date.init(timeIntervalSinceNow: duration * 60)
+						.getFormattedDate(format: "HH:mm"),
+					"\u{001B}[0m"
+				)
 				break
 			}
 
 		}
 	}
 	if (calendar_not_found) {
-		print("no such calendar:", arguments[1])
+		print("\r\u{001B}[0;31mno such calendar: \u{001B}[1;31m\(arguments[1])\u{001B}[0m")
 	}
 
+}
+
+extension Date {
+	func getFormattedDate(format: String) -> String {
+		 let dateformat = DateFormatter()
+		 dateformat.dateFormat = format
+		 return dateformat.string(from: self)
+	 }
 }
 
 extension Date {
