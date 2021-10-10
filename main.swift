@@ -48,6 +48,8 @@ let arguments = CommandLine.arguments
 var cmd = ""
 if arguments.count > 1 { cmd = arguments[1] }
 switch cmd {
+case "now", "current", "what":
+	 break
 case "push", "p":
 	print("pushed: \u{001B}[32m", terminator:"")
 case "end", "e":
@@ -161,6 +163,48 @@ case "next", "start", "n", "s":
 		print("no event found until", next_midnight)
 	}
 
+case "now", "current", "what":
+	if last_event != nil  {
+
+		setbuf(stdout, nil);
+		let dateComponentsFormatter = DateComponentsFormatter()
+		dateComponentsFormatter.allowedUnits = [.second, .minute, .hour]
+		dateComponentsFormatter.maximumUnitCount = 1
+		dateComponentsFormatter.unitsStyle = .full
+		let time_passed = dateComponentsFormatter.string(from: last_event!.startDate, to: last_event!.endDate)!
+
+		fputs("\n  \u{001B}[33m",stderr)
+		print(last_event?.title ?? "", terminator:"")
+		fputs("\u{001B}[0m\n",stderr)
+
+		putchar(9) // 9 is tab character
+		fputs("\ncalendar: \u{001B}[32m",stderr)
+		print(last_event?.calendar.title ?? "", terminator:"")
+		fputs("\u{001B}[0m",stderr)
+
+		putchar(9)
+		fputs("\n started: \u{001B}[35m",stderr)
+		print(time_passed, terminator:"")
+		fputs("\u{001B}[0m ago",stderr)
+
+		if last_event?.location != nil {
+			putchar(9)
+			fputs("\nlocation: \u{001B}[36m",stderr)
+			print(last_event!.location!, terminator:"")
+			fputs("\u{001B}[0m",stderr)
+		}
+
+		if last_event?.notes != nil {
+			putchar(9)
+			fputs("\n   notes:\n------",stderr)
+			putchar(10) // 10 is new line character
+			fputs(last_event!.notes!,stdout)
+			fputs("\n------",stderr)
+		}
+
+		putchar(10)
+
+	}
 
 case "continue", "con", "c":
 	if last_event != nil && previous_event != nil {
