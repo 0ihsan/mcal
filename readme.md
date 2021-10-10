@@ -16,6 +16,7 @@ brew install mcal
 ```
 
 ## features
+* [X] Display the information of the current event. (`mcal end`)
 * [X] Adjust the current event end date to the current time (finish). (`mcal end`)
 * [X] Create new events on existing calendars. (`mcal personal 30 spend time with family`)
 * [X] Add location data (`mcal personal 15 drink coffee at everest`)
@@ -29,8 +30,9 @@ brew install mcal
 ```
 mcal <calendar_name> <duration_mins> <event_title> [ at <location> ]
 
+mcal now
 mcal end
-mcal push [ <calendar_name> <event title> [ at <location> ] ]
+mcal push <calendar_name> <event title> [ at <location> ]
 mcal continue
 mcal next
 ```

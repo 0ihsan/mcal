@@ -17,6 +17,7 @@ Manage macOS Calendar from command line.
 
    \u{001B}[32mmcal\u{001B}[0m <calendar_name> <duration_mins> <event_title> [ at <location> ]
 
+   \u{001B}[32mmcal \u{001B}[34mnow\u{001B}[0m
    \u{001B}[32mmcal \u{001B}[34mend\u{001B}[0m
    \u{001B}[32mmcal \u{001B}[34mpush\u{001B}[0m [ <calendar_name> <event title> [ at <location> ] ]
    \u{001B}[32mmcal \u{001B}[34mcontinue\u{001B}[0m
@@ -24,6 +25,8 @@ Manage macOS Calendar from command line.
 
 \u{001B}[33mALIAS:\u{001B}[0m
 
+   now   -> current
+   now   -> what
    e     -> end
    p     -> push
    c     -> continue
