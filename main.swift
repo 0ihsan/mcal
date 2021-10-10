@@ -178,7 +178,7 @@ case "now", "current", "what":
 
 		let time_passed = dateComponentsFormatter.string(from: current_event!.startDate, to: current_event!.endDate)!
 
-		fputs("\n  \u{001B}[33m",stderr)
+		fputs("\n  \u{001B}[1;33m",stderr)
 		print(current_event?.title ?? "", terminator:"")
 		fputs("\u{001B}[0m\n",stderr)
 
@@ -215,8 +215,8 @@ case "now", "current", "what":
 			let time_passed = dateComponentsFormatter.string(
 			    from: last_event!.endDate,
 			    to: Date())!
-			fputs("you did \u{001B}[1;35m\(last_event!.title!)\u{001B}[0m ", stderr)
-			fputs("\u{001B}[33m\(time_passed)\u{001B}[0m ago\n", stderr)
+			fputs("you did \u{001B}[1;33m\(last_event!.title!)\u{001B}[0m ", stderr)
+			fputs("\u{001B}[35m\(time_passed)\u{001B}[0m ago\n", stderr)
 		}
 	}
 
