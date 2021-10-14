@@ -1,6 +1,6 @@
 # mcal
 
-Less than 400 lines of suckless code for managing the macOS built-in calendar
+Less than 500 lines of suckless code for managing the macOS built-in calendar
 app from command line. So you don't have to align the events with your fucking
 pointer pixel by pixel (I hate it).
 
