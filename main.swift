@@ -9,7 +9,7 @@ import Foundation
 import EventKit
 
 let USAGE = """
-\u{001B}[32mmcal\u{001B}[0m 1.0.0
+\u{001B}[32mmcal\u{001B}[0m 1.1.6
 ihsan ihsanl@pm[dot]me
 Manage macOS Calendar from command line.
 
@@ -37,12 +37,12 @@ Manage macOS Calendar from command line.
 
 \u{001B}[33mEXAMPLES:\u{001B}[0m
 
-   mcal personal 30 eat & surf web
+   mcal personal 30 'eat & surf web'
    mcal business 60 develop calendar cli
    mcal spare 15 break
    mcal push personal spend time with family at london, home
    mcal business 120 improve mcal at https://github.com/ihsanturk/mcal
-   mcal spare 30 play chess at https://lichess.com
+   mcal spare 30 play chess at https://lichess.org
 """
 
 setbuf(stdout, nil);

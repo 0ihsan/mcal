@@ -27,25 +27,9 @@ brew install mcal
       (`mcal push ...`)
 
 ## usage
-```
-mcal <calendar_name> <duration_mins> <event_title> [ at <location> ]
+`mcal` or `mcal -h` or `mcal --help` or `mcal help`
 
-mcal now
-mcal end
-mcal push <calendar_name> <event title> [ at <location> ]
-mcal continue
-mcal next
-```
-
-## examples
-```
-mcal personal 30 eat & surf web
-mcal business 60 develop calendar cli
-mcal spare 15 break
-mcal push personal spend time with family at london, home
-mcal business 120 improve mcal at https://github.com/ihsanturk/mcal
-mcal spare 30 play chess at https://lichess.com
-```
+![usage](https://i.imgur.com/WtWvmaz.png)
 
 ## license
 MIT
