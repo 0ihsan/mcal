@@ -39,3 +39,13 @@ The code is not that clean but not long as well. I might not accept your pull
 request if you send bloated changes. Feel free to fork and use however you
 want.
 
+## notes for myself
+### update brew package
+
+- commit your changes here
+   - don't forget to increase the version number
+- create a tag with `git tag v1.1.8` for example.
+- push the changes with `git push && git push origin v1.1.8` for example.
+- `brew edit mcal` sync the version number to the newest.
+- `brew upgrade mcal`, get the sha256 and put it in the mcal.rb file.
+- commit the changes and push them.
