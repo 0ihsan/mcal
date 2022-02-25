@@ -16,6 +16,7 @@ brew install mcal
 ```
 
 ## features
+* [ ] Ignore subscribed (remote) calendars since user can't change those.
 * [X] Display the information of the current event. (`mcal now`)
 * [X] Adjust the current event end date to the current time (finish). (`mcal end`)
 * [X] Create new events on existing calendars. (`mcal personal 30 spend time with family`)
