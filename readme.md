@@ -32,6 +32,12 @@ brew install mcal
 
 ![usage](https://i.imgur.com/WtWvmaz.png)
 
+You may want to disable OS logs with this environment variable:
+```sh
+export OS_ACTIVITY_DT_MODE=NO
+export OS_ACTIVITY_MODE=disable
+```
+
 ## license
 MIT
 
