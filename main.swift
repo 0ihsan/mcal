@@ -227,7 +227,7 @@ case "now", "current", "what", "info":
 			let time_passed = dateComponentsFormatter.string(
 			    from: last_event!.endDate,
 			    to: Date())!
-			fputs("you did \u{001B}[1;33m\(last_event!.title!)\u{001B}[0m ", stderr)
+			fputs("you did \u{001B}[1;33m\(last_event!.calendar.title) \(last_event!.title!)\u{001B}[0m ", stderr)
 			fputs("\u{001B}[35m\(time_passed)\u{001B}[0m ago\n", stderr)
 		}
 	}

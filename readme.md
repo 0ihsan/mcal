@@ -54,5 +54,5 @@ want.
 - create a tag with `git tag v1.1.8` for example.
 - push the changes with `git push && git push origin v1.1.8` for example.
 - `brew edit mcal` sync the version number to the newest.
-- `brew upgrade mcal`, get the sha256 and put it in the mcal.rb file.
+- `brew upgrade mcal`, get the sha256 and put it in the mcal.rb file
 - commit the changes and push them.
