@@ -4,6 +4,12 @@ Less than 500 lines of suckless code for managing the macOS built-in calendar
 app from command line. So you don't have to align the events with your fucking
 pointer pixel by pixel (I hate it).
 
+### who is `mcal` for?
+This program meant for people who record everything minute by minute to their
+calendar, that is, editing only previous/current/next events in the near time.
+Neither scheduling future events nor editing past events cannot be done with
+`mcal`.
+
 ## install
 Takes couple of seconds to compile.
 ```
