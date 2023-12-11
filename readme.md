@@ -17,7 +17,7 @@ swiftc main.swift -o /usr/local/bin/mcal
 ```
 or if you want to make things easier and complicated at the same time then
 ```
-brew tap ihsanturk/packages
+brew tap 0ihsan/packages
 brew install mcal
 ```
 
