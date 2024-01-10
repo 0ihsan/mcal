@@ -81,7 +81,7 @@ var store = EKEventStore()
 switch EKEventStore.authorizationStatus(for: .event) {
 
 	case .notDetermined:
-		store.requestAccess(to: .event, completion:
+		store.requestFullAccessToEvents(completion:
 			{(granted: Bool, error: Error?) -> Void in
 				if granted {
 					print("access granted")
