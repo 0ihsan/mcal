@@ -27,7 +27,7 @@ brew install mcal
 ## usage
 `mcal help`
 
-![usage](https://imgur.com/a/lzMGtHN)
+![usage](https://github.com/0ihsan/mcal/assets/24369769/ec937f30-83c0-47a7-a06d-6bcbd3218bdd)
 
 You can disable OS logs:
 ```sh
