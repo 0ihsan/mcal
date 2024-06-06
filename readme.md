@@ -1,64 +1,50 @@
 # mcal
-
-Less than 500 lines of suckless code for managing the macOS built-in calendar
-app from command line. So you don't have to align the events with your fucking
-pointer pixel by pixel (I hate it).
+A simple script for managing macOS built-in calendar app from command line. So you don't have to align the events with your mouse.
 
 ### who is `mcal` for?
-This program meant for people who record everything minute by minute to their
-calendar, that is, editing only previous/current/next events in the near time.
-Neither scheduling future events nor editing past events cannot be done with
-`mcal`.
+This program meant for people who record everything minute by minute to their calendar. `mcal` deals only with previous/current/next event in the near time. Scheduling future events or editing past events cannot be done with `mcal`.
 
 ## install
-Takes couple of seconds to compile.
 ```
-swiftc main.swift -o /usr/local/bin/mcal
+swiftc mcal.swift -o /usr/local/bin/mcal
 ```
-or if you want to make things easier and complicated at the same time then
+or
 ```
 brew tap 0ihsan/packages
 brew install mcal
 ```
 
 ## features
+* [X] Show current event. (`mcal show`)
+* [X] List today's events. (`mcal list`)
+* [X] Finish current event. (`mcal end`)
+* [X] Create new event with duration, title and/or location on existing calendars. (`mcal personal 30 spend time with family at home`)
+* [X] Bring future event to current time (`mcal next`)
+* [X] Continue previous event (`mcal con`) (ends the current and copies previous event to current time)
+* [X] Push a forgotten event as started from the last event's end. (`mcal push [ ... ]`)
 * [ ] Ignore subscribed (remote) calendars since user can't change those.
-* [X] Display the information of the current event. (`mcal now`)
-* [X] Adjust the current event end date to the current time (finish). (`mcal end`)
-* [X] Create new events on existing calendars. (`mcal personal 30 spend time with family`)
-* [X] Add location data (`mcal personal 15 drink coffee at everest`)
-* [X] Bring future (next) event to current time (`mcal next`)
-* [X] Continue previous event (`mcal continue`) (ends the current and
-      copies previous event to current time)
-* [X] Push last forgotten event as started from the last event and ends now.
-      (`mcal push ...`)
 
 ## usage
-`mcal` or `mcal -h` or `mcal --help` or `mcal help`
+`mcal help`
 
-![usage](https://i.imgur.com/WtWvmaz.png)
+![usage](https://imgur.com/a/lzMGtHN)
 
-You may want to disable OS logs with this environment variable:
+You can disable OS logs:
 ```sh
 export OS_ACTIVITY_DT_MODE=NO
 export OS_ACTIVITY_MODE=disable
 ```
 
-## license
-MIT
-
 ## notes for developers
-The code is not that clean but not long as well. I might not accept your pull
-request if you send bloated changes. Feel free to fork and use however you
-want.
+Feel free to fork and do whatever you want but notice I might not accept your pull request.
 
 ## notes for myself
 ### update brew package
 
 - commit your changes here
-   - don't forget to increase the version number
+ - adjust version number
 - create a tag with `git tag v1.1.8` for example.
-- push the changes with `git push && git push origin v1.1.8` for example.
-- `brew edit mcal` sync the version number to the newest.
+- `git push && git push origin v1.1.8`
+- brew tap and `brew edit mcal` sync the version number to the newest.
 - `brew upgrade mcal`, get the sha256 and put it in the mcal.rb file
-- commit the changes and push them.
+- commit the changes on 0ihsan/packages and push.
